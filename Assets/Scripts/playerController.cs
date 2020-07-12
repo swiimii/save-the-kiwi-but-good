@@ -1,13 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class playerController : MonoBehaviour
 {
-    // Start is called before the first frame update
     public float sensitivity = 1;
     public float moveSpeed = .1f;
     public GameObject myCamera;
+    public GameObject crosshairIndicator;
 
     private float mouseX;
     private float mouseY;
@@ -21,15 +22,14 @@ public class playerController : MonoBehaviour
         Cursor.visible = false;
     }
 
-    // Update is called once per frame
     void Update()
     {
-        
-        if( Input.GetButtonDown("Fire1") )
-        {
-            // Debug.DrawRay(Camera.main.transform.position, Camera.main.transform.forward * maxInteractableDistance, Color.green);
+        Debug.DrawRay(Camera.main.transform.position, Camera.main.transform.forward * maxInteractableDistance, Color.green);
 
-            if ( Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out var outRay, maxInteractableDistance, 1 << LayerMask.NameToLayer("Interactable") ) )
+        if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out var outRay, maxInteractableDistance, 1 << LayerMask.NameToLayer("Interactable")))
+        {
+            UpdateIndicator(true);
+            if ( Input.GetButtonDown("Fire1") )
             {
                 // print(outRay.collider.gameObject);
                 if( outRay.transform.gameObject.GetComponent<Affectable>() )
@@ -40,14 +40,15 @@ public class playerController : MonoBehaviour
                 else if( outRay.transform.gameObject.GetComponent<Equippable>() )
                 {
                     var equippable = outRay.transform.gameObject;
-                    GetComponent<Equipment>().EquipObject(outRay.transform.gameObject);
+                    GetComponent<Equipment>().EquipObject(equippable);
                 }
             }
         }
-        /* else
+        else
         {
+            UpdateIndicator(false);
             Debug.DrawRay(Camera.main.transform.position, Camera.main.transform.forward * maxInteractableDistance, Color.red );
-        } */
+        } 
     }
     private void FixedUpdate()
     {
@@ -55,11 +56,11 @@ public class playerController : MonoBehaviour
 
         mouseX = Input.GetAxis("Mouse X");
         mouseY = -Input.GetAxis("Mouse Y");
-        vertical = Input.GetAxis("Vertical");
-        horizontal = Input.GetAxis("Horizontal");
+        vertical = Input.GetAxisRaw("Vertical");
+        horizontal = Input.GetAxisRaw("Horizontal");
         UpdateCamera(mouseY);
         UpdateTurn(mouseX);
-        Move(vertical, horizontal);
+        ComplexMove(vertical, horizontal);
     }
     void UpdateCamera(float mouseY)
     {
@@ -72,7 +73,52 @@ public class playerController : MonoBehaviour
 
     void Move(float vertical, float horizontal)
     {
-        transform.position += transform.forward * vertical * moveSpeed * Time.deltaTime ;
-        transform.position += transform.right * horizontal * moveSpeed * Time.deltaTime ;
+        transform.position += (transform.forward * vertical + transform.right * horizontal).normalized * moveSpeed * Time.deltaTime ;
+    }
+
+    void ComplexMove(float vertical, float horizontal)
+    {
+        // create a raycast to determine vertical direction (used for climbing hills)
+        var movementVector = Vector3.zero;
+        var feet = new Vector3(GetComponent<Collider>().bounds.center.x, GetComponent<Collider>().bounds.min.y, GetComponent<Collider>().bounds.center.z);
+        var rayMagnitude = 3;
+        var rayDistance = (GetComponent<CapsuleCollider>().bounds.max.y - GetComponent<CapsuleCollider>().bounds.min.y) * rayMagnitude;
+        var rayOrigin = transform.position + (vertical * transform.forward + horizontal * transform.right).normalized * .5f;
+        var rayDirection = transform.up * -1;
+
+        if ( Physics.Raycast( rayOrigin, rayDirection, out var outRay,  rayDistance) )
+        {
+            movementVector = (outRay.point - feet).normalized;
+        }
+        else
+        {
+            Move(vertical, horizontal);
+        }
+
+        // Check Grounded. If not, prevent character from moving up (prevents weird accidental jumps)
+        /*
+        var groundedRayOrigin = feet - .1f * transform.up * -1;
+        if (!Physics.Raycast(groundedRayOrigin, transform.up * -1, out var outRay2, .01f))
+        {
+            movementVector = new Vector3(movementVector.x, movementVector.y > 0 ? 0 : movementVector.y, movementVector.z).normalized;
+        }
+        else
+        {
+            print(outRay2.collider.gameObject);
+        }
+        */
+        transform.position += movementVector * moveSpeed * Time.deltaTime;
+    }
+
+    void UpdateIndicator(bool state)
+    {
+        if(crosshairIndicator.activeInHierarchy == state)
+        {
+            return;
+        }
+        else
+        {
+            crosshairIndicator.SetActive(state);
+        }
     }
 }
