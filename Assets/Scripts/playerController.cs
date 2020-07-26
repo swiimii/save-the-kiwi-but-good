@@ -60,11 +60,14 @@ public class playerController : MonoBehaviour
         horizontal = Input.GetAxisRaw("Horizontal");
         UpdateCamera(mouseY);
         UpdateTurn(mouseX);
-        ComplexMove(vertical, horizontal);
+        if (!(Mathf.Abs(horizontal) <= .1f && Mathf.Abs(vertical) <= .1f))
+        {
+            ComplexMove(vertical, horizontal);
+        }
     }
     void UpdateCamera(float mouseY)
     {
-        myCamera.transform.localRotation = Quaternion.Euler(myCamera.transform.eulerAngles.x + mouseY * sensitivity, 0 , 0 );
+        myCamera.transform.localRotation = Quaternion.Euler(myCamera.transform.eulerAngles.x + mouseY * sensitivity, 0, 0 );
     }
     void UpdateTurn(float mouseX)
     {
@@ -86,7 +89,7 @@ public class playerController : MonoBehaviour
         var rayOrigin = transform.position + (vertical * transform.forward + horizontal * transform.right).normalized * .5f;
         var rayDirection = transform.up * -1;
 
-        if ( Physics.Raycast( rayOrigin, rayDirection, out var outRay,  rayDistance) )
+        if ( Physics.Raycast( rayOrigin, rayDirection, out var outRay,  rayDistance, ~(1 << LayerMask.NameToLayer("Player")) ) ) // Hit everyting except the player
         {
             movementVector = (outRay.point - feet).normalized;
         }
@@ -96,17 +99,21 @@ public class playerController : MonoBehaviour
         }
 
         // Check Grounded. If not, prevent character from moving up (prevents weird accidental jumps)
-        /*
+        
         var groundedRayOrigin = feet - .1f * transform.up * -1;
-        if (!Physics.Raycast(groundedRayOrigin, transform.up * -1, out var outRay2, .01f))
+        Debug.DrawRay(groundedRayOrigin, transform.up * -1 * .4f, Color.blue);
+
+        if (!Physics.Raycast(groundedRayOrigin, transform.up * -1, out var outRay2, .4f, ~(1 << LayerMask.NameToLayer("Player")) ) )
         {
-            movementVector = new Vector3(movementVector.x, movementVector.y > 0 ? 0 : movementVector.y, movementVector.z).normalized;
+            float gravity = -2.68f;
+            //movementVector = new Vector3(movementVector.x, movementVector.y > 0 ? 0 : movementVector.y, movementVector.z).normalized;
+            movementVector = new Vector3(movementVector.x, gravity, movementVector.z).normalized;
         }
         else
         {
             print(outRay2.collider.gameObject);
         }
-        */
+        
         transform.position += movementVector * moveSpeed * Time.deltaTime;
     }
 
