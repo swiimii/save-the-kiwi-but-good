@@ -3,7 +3,22 @@ guid: eac01e7bd2e11ac4eb09741c8307cff2
 ModelImporter:
   serializedVersion: 19300
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: bkb_eyeMat
+    second: {fileID: 2100000, guid: fe597bbd208645247bd188b18e5dc9f4, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: bkb_lIrisMat
+    second: {fileID: 2100000, guid: fe597bbd208645247bd188b18e5dc9f4, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: bkb_rIrisMat
+    second: {fileID: 2100000, guid: fe597bbd208645247bd188b18e5dc9f4, type: 2}
   materials:
     materialImportMode: 1
     materialName: 0

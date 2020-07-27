@@ -2,3 +2,6 @@ house: https://free3d.com/3d-model/gameready-cottage-free-163528.html
 fence: https://www.turbosquid.com/3d-models/free-fence-wooden-wood-3d-model/876967
 bear: https://free3d.com/3d-model/black-bear-87483.html
 chainsaw: https://free3d.com/3d-model/chainsaw-animated-lowpoly-15853.html
+
+MUSIC:
+Requiem in D Minor, Dies Irae - Mozart (Creative Commons): https://imslp.org/wiki/Requiem_in_D_minor,_K.626_%28Mozart,_Wolfgang_Amadeus%29

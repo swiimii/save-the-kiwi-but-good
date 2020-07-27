@@ -67,11 +67,13 @@ public class playerController : MonoBehaviour
     }
     void UpdateCamera(float mouseY)
     {
-        myCamera.transform.localRotation = Quaternion.Euler(myCamera.transform.eulerAngles.x + mouseY * sensitivity, 0, 0 );
+        float resScaling = Camera.main.pixelHeight/1000f;
+        myCamera.transform.localRotation = Quaternion.Euler(myCamera.transform.eulerAngles.x + mouseY * sensitivity * resScaling, 0, 0 );
     }
     void UpdateTurn(float mouseX)
     {
-        transform.rotation *= Quaternion.Euler(0, mouseX * sensitivity, 0);
+        float resScaling = Camera.main.pixelWidth/1000f;
+        transform.rotation *= Quaternion.Euler(0, mouseX * sensitivity * resScaling, 0);
     }
 
     void Move(float vertical, float horizontal)
