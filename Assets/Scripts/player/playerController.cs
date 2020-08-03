@@ -2,6 +2,10 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.PlayerLoop;
+using UnityStandardAssets.Characters.FirstPerson;
+using UnityStandardAssets.CrossPlatformInput;
+
 
 public class playerController : MonoBehaviour
 {
@@ -10,20 +14,27 @@ public class playerController : MonoBehaviour
     public GameObject myCamera;
     public GameObject crosshairIndicator;
 
-    private float mouseX;
-    private float mouseY;
     private float vertical;
     private float horizontal;
 
     private float maxInteractableDistance = 3;
+    private MouseLook ml;
 
     void Start()
     {
         Cursor.visible = false;
+
+        // Using Standard Assets class 'MouseLook'
+        ml = new MouseLook();
+        ml.Init(gameObject.transform, Camera.main.transform);
+        ml.XSensitivity = sensitivity;
+        ml.YSensitivity = sensitivity;
     }
 
     void Update()
     {
+        ml.LookRotation(transform, Camera.main.transform);
+
         Debug.DrawRay(Camera.main.transform.position, Camera.main.transform.forward * maxInteractableDistance, Color.green);
 
         if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out var outRay, maxInteractableDistance, 1 << LayerMask.NameToLayer("Interactable")))
@@ -50,30 +61,17 @@ public class playerController : MonoBehaviour
             Debug.DrawRay(Camera.main.transform.position, Camera.main.transform.forward * maxInteractableDistance, Color.red );
         } 
     }
+
+
     private void FixedUpdate()
     {
-        Cursor.lockState = CursorLockMode.Locked;
-
-        mouseX = Input.GetAxis("Mouse X");
-        mouseY = -Input.GetAxis("Mouse Y");
         vertical = Input.GetAxisRaw("Vertical");
         horizontal = Input.GetAxisRaw("Horizontal");
-        UpdateCamera(mouseY);
-        UpdateTurn(mouseX);
+
         if (!(Mathf.Abs(horizontal) <= .1f && Mathf.Abs(vertical) <= .1f))
         {
             ComplexMove(vertical, horizontal);
         }
-    }
-    void UpdateCamera(float mouseY)
-    {
-        float resScaling = Camera.main.pixelHeight/1000f;
-        myCamera.transform.localRotation = Quaternion.Euler(myCamera.transform.eulerAngles.x + mouseY * sensitivity * resScaling, 0, 0 );
-    }
-    void UpdateTurn(float mouseX)
-    {
-        float resScaling = Camera.main.pixelWidth/1000f;
-        transform.rotation *= Quaternion.Euler(0, mouseX * sensitivity * resScaling, 0);
     }
 
     void Move(float vertical, float horizontal)
@@ -113,7 +111,7 @@ public class playerController : MonoBehaviour
         }
         else
         {
-            print(outRay2.collider.gameObject);
+            //print(outRay2.collider.gameObject);
         }
         
         transform.position += movementVector * moveSpeed * Time.deltaTime;

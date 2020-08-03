@@ -4,5 +4,5 @@ using UnityEngine;
 
 public abstract class Affectable : MonoBehaviour
 {
-    public abstract void Effect();
+    public abstract bool Effect(string equipmentUsed);
 }

@@ -4,12 +4,19 @@ using UnityEngine;
 
 public class Trampoline : Affectable
 {
-    public override void Effect()
+    public bool isRepaired;
+    public override bool Effect(string equipmentUsed)
     {
-        Repair();
+        if (equipmentUsed == "Wrench")
+        {
+            Repair();
+            return true;
+        }
+        return false;
     }
     public void Repair()
     {
-        print("Fixed!");
+        isRepaired = true;
+        GetComponent<Animator>().SetBool("isRepaired", true);
     }
 }

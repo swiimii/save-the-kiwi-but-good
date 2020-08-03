@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class Equippable : MonoBehaviour
 {
+    public string name;
     [SerializeField] private Sprite equipment;
     private void Start()
     {
@@ -16,4 +17,5 @@ public class Equippable : MonoBehaviour
         gameObject.SetActive(false);
         return equipment;
     }
+
 }
